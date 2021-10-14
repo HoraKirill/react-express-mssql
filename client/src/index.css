@@ -1,0 +1,52 @@
+.mx-1 {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.pt-1 {
+    padding-top: 1rem;
+}
+
+.img{
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+#input[type="file"] {
+    display: none;
+}
+
+.modal {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.5ms;
+}
+
+.modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal__content {
+    padding: 20px;
+    border-radius: 12px;
+    background-color: white;
+    transform: scale(0.5);
+    width: 50vw;
+}
+
+.modal__content.active {
+    transform: scale(1);
+}
