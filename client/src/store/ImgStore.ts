@@ -15,7 +15,7 @@ class ImgStore implements IImg {
         makeAutoObservable(this)
     }
 
-    addImg(file: File, imagePreviewUrl: string | ArrayBuffer | null) {
+    imgAdd(file: File, imagePreviewUrl: string | ArrayBuffer | null) {
         this.file = file
         this.imagePreviewUrl = imagePreviewUrl
     }
@@ -24,7 +24,7 @@ class ImgStore implements IImg {
         this.imagePreviewUrl = 'http://localhost:3001/' + UsersStore.currentUser.photo
     }
 
-    clearImg() {
+    imgClear() {
         this.imagePreviewUrl = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
     }
 }

@@ -9,14 +9,14 @@ export default class ModalState {
         makeAutoObservable(this)
     }
 
-    openForm() {
+    formOpen() {
         this.open = true
     }
 
-    close() {
+    formClose() {
         this.open = false
-        UsersStore.clearCurrentUser()
-        ImgStore.clearImg()
+        UsersStore.userCurrentClear()
+        ImgStore.imgClear()
     }
 }
 

@@ -5,11 +5,11 @@ const router = Router()
 
 router.post('/users', userController.getUsers)
 
-router.post('/create', userController.newUser)
+router.post('/create', userController.userCreate)
 
-router.post('/edit', userController.editUser)
+router.post('/edit', userController.userEdit)
 
-router.delete('/delete', userController.deleteUser)
+router.delete('/delete', userController.userDelete)
 
 
-export default router
+export default router;

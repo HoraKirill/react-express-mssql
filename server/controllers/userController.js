@@ -1,111 +1,105 @@
-import User from "../models/models.js";
+import User from "../models/UserModel.js";
 import {v4} from "uuid";
 import path from "path";
 import fs from 'fs'
 import pkg from "sequelize"
 import {milliseconds, format} from 'date-fns'
-
+import config from "../config.js";
 
 const {Op} = pkg;
 
 
-let __dirname = path.resolve();
+ const _photoDelete = (photo) =>  {
+    fs.unlink(`static/${photo}`, (err) => {
+        if (err) throw err;
+    });
+}
+
+const _photoCreate = (photo) =>  {
+    const fileName = v4() + '.jpg'
+    photo.mv(path.resolve(config.__dirname, config.imgPath, fileName))
+    return fileName
+}
 
 export default class UserController {
 
     static async getUsers(req, res) {
-        let {query, queryType, superUser, age} = req.body
+        const {query, queryType, superUser, age} = req.body
+        const where = {}
 
-        const filter = () => {
-            let where = {}
-            if (age) {
-                const maturityDate = format((new Date() - milliseconds({years: 18})), 'yyyy-dd-MM')
-                console.log(age)
-                where.birthday = {
-                    [age === 'adult' ? Op.gte : Op.lt]: maturityDate,
-                }
+        if (age) {
+            const maturityDate = format((new Date() - milliseconds({years: 18})), 'yyyy-dd-MM')
+            where.birthday = {
+                [age === 'adult' ? Op.gte : Op.lt]: maturityDate,
             }
-
-            if (query) {
-                    where[queryType] = {
-                            [Op.startsWith]: query
-                        }
-            }
-
-            if (superUser) {
-                where.superUser = superUser === 'admin'
-            }
-            return where
         }
-        const users = await User.findAll({where: filter()})
+
+        if (query) {
+            where[queryType] = {
+                [Op.startsWith]: query
+            }
+        }
+
+        if (superUser) {
+            where.superUser = superUser === 'admin'
+        }
+
+        const users = await User.findAll({where})
         return res.status(200).json(users)
     }
 
 
-    static async newUser(req, res) {
+    static async userCreate(req, res) {
         try {
-            const {name, email, phone, birthday, superUser} = req.body
-            let fileName = ''
+            let fileName = null
             if (req.files) {
-                const {photo} = req.files
-                fileName = v4() + '.jpg'
-                photo.mv(path.resolve(__dirname, 'static', fileName))
+                fileName = _photoCreate(req.files.photo)
             }
-            const user = await User.create({name, email, phone, birthday, photo: fileName, superUser})
+            const user = await User.create({...req.body, photo: fileName})
             return res.status(201).json(user)
         } catch (e) {
-            console.log(e)
+            res.status(500).json(e.message)
         }
     }
 
-    static async deleteUser(req, res) {
+    static async userDelete(req, res) {
         try {
             const {id, photo} = req.body
             await User.destroy({
                 where: {id},
             })
-            fs.unlink(`static/${photo}`, (err) => {
-                if (err) throw err;
-                console.log('Deleted');
-            });
-            return res.json('delete')
+            if (photo) {
+                _photoDelete(photo)
+            }
+            return res.status(200).json('deleted')
         } catch (e) {
-            console.log(e)
+            res.status(500).json(e.message)
         }
     }
 
-    static async editUser(req, res) {
+    static async userEdit(req, res) {
+        const userCurrent = req.body
         try {
-            const {id, name, email, phone, birthday, superUser} = req.body
-            let fileName = ''
-            let userBase = await User.findAll({
-                where: {
-                    id: id
-                }
-            })
-            console.log(req.files)
-            if (req.files !== null) {
-                fs.unlink(`static/${userBase[0].photo}`, (err) => {
-                    if (err) throw err;
-                    console.log('Deleted');
-                });
-                const {photo} = req.files
-                fileName = v4() + '.jpg'
-                photo.mv(path.resolve(__dirname, 'static', fileName))
+            let fileName
+            const userBase = await User.findByPk(userCurrent.id)
+            if (req.files) {
+                _photoDelete(userBase.photo)
+                fileName = _photoCreate(req.files.photo)
             } else {
                 fileName = userBase.photo
             }
             const user = await User.update({
-                name: name,
-                email: email,
-                phone: phone,
-                birthday: birthday,
+                name: userCurrent.name,
+                email: userCurrent.email,
+                phone: userCurrent.phone,
+                birthday: userCurrent.birthday,
                 photo: fileName,
-                superUser: superUser
-            }, {where: {id: id}})
-            return res.status(201).json(user)
+                superUser: userCurrent.superUser
+            }, {where: {id: userCurrent.id}})
+            return res.status(200).json(user)
         } catch (e) {
-            console.log(e)
+            res.status(500).json(e.message)
         }
     }
+
 }

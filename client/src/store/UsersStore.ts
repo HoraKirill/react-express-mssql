@@ -2,6 +2,7 @@ import {action, makeAutoObservable, runInAction} from "mobx";
 import axios from "axios";
 import {IUserCreate} from "../components/FormInput";
 import {User} from "../models/User";
+import ToastNotification from "../components/ToastNotification";
 
 const defaultUser: IUserCreate = {
     birthday: "",
@@ -19,23 +20,22 @@ class UsersStore {
 
     constructor() {
         makeAutoObservable(this, {
-            addUser: action.bound
+            userAdd: action.bound
         })
     }
 
-    async fetchData() {
+    async dataFetch() {
         const res = await axios.post('http://localhost:3001/users')
         runInAction(() => {
             this.users = res.data
         })
     }
 
-    setUserPropertyValue(property: keyof IUserCreate, value: any) {
-        // @ts-ignore
+    setUserPropertyValue<K extends keyof IUserCreate, V extends IUserCreate[K]>(property: K, value: V) {
         this.currentUser[property] = value
     }
 
-    async addUser() {
+    async userAdd() {
         try {
             let formData = new FormData()
             Object.entries(this.currentUser).forEach(item => {
@@ -43,13 +43,13 @@ class UsersStore {
             });
             const {data}: { data:User } = await axios.post('http://localhost:3001/create', formData)
             this.users.push(data)
-        } catch (e) {
-            console.log(e)
+        } catch (e: any) {
+            ToastNotification.toastMessage(e.message as string)
         }
-        this.clearCurrentUser()
+        this.userCurrentClear()
     }
 
-    async editUser() {
+    async userEdit() {
         try {
             let formData = new FormData()
             Object.entries(this.currentUser).forEach(item => {
@@ -63,39 +63,39 @@ class UsersStore {
                     return user;
                 }
             })
-        } catch (e) {
-            console.log(e)
+        } catch (e:any) {
+            ToastNotification.toastMessage(e.message as string)
         }
-        this.clearCurrentUser()
+        this.userCurrentClear()
     }
 
-    async deleteUser() {
+    async userDelete() {
         try {
             await axios.delete('http://localhost:3001/delete', {data: this.currentUser})
-            this.fetchData()
-            this.clearCurrentUser()
-        } catch (e) {
-            console.log(e)
+            this.dataFetch()
+            this.userCurrentClear()
+        } catch (e:any) {
+            ToastNotification.toastMessage(e.message as string)
         }
     }
 
-    setCurrentUser (user: IUserCreate) {
+    setUserCurrent (user: IUserCreate) {
         this.currentUser = user
     }
 
-    clearCurrentUser () {
+    userCurrentClear () {
         this.currentUser = defaultUser
     }
 
-    openEditForm () {
+    formEditOpen () {
         this.editForm = true
     }
 
-    closeEditForm () {
+    formEditClose () {
         this.editForm = false
     }
 
-    filterUsers (e:User[]) {
+    usersFilter (e:User[]) {
         this.users = e
     }
 }

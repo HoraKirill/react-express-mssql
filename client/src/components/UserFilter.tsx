@@ -2,7 +2,7 @@ import React from 'react';
 import FilterStore, {EAgeType, ESuperType} from "../store/FilterStore";
 import {observer} from "mobx-react";
 
-const FilterUser: React.FC = observer(() => {
+const UserFilter: React.FC = observer(() => {
 
     return (
         <div className="row">
@@ -50,4 +50,4 @@ const FilterUser: React.FC = observer(() => {
     );
 })
 
-export default FilterUser;
+export default UserFilter;

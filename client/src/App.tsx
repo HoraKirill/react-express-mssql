@@ -3,22 +3,21 @@ import TableList, {IColumn} from "./components/TableList";
 import {User} from "./models/User";
 import ModalWindow from "./components/ModalWindow";
 import FormInput, {IUserCreate} from "./components/FormInput";
-import FilterUser from "./components/FilterUser";
+import UserFilter from "./components/UserFilter";
 import {ECellType} from "./components/TableCell";
 import {IActions} from "./components/TableRow";
-import DeleteEvent from "./components/DeleteEvent";
+import ModalUserDelete from "./components/ModalUserDelete";
 import {observer} from "mobx-react";
 import UsersStore from "./store/UsersStore";
 import ModalsStore from "./store/ModalsStore";
 import ImgStore from "./store/ImgStore";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const App = observer(() => {
 
         const columns: IColumn[] = [
-            {
-                field: 'id',
-                name: "Id"
-            },
             {
                 field: 'name',
                 name: "Имя"
@@ -55,28 +54,27 @@ const App = observer(() => {
             {
                 icon: <i className="material-icons"> edit </i>,
                 onClick: (row) => {
-                    UsersStore.setCurrentUser(row as IUserCreate)
+                    UsersStore.setUserCurrent(row as IUserCreate)
                     ImgStore.setImgPhoto()
-                    UsersStore.openEditForm()
-                    ModalsStore.editModal.openForm()
+                    UsersStore.formEditOpen()
+                    ModalsStore.editModal.formOpen()
                 }
             },
             {
                 icon: <i className="material-icons"> delete </i>,
                 onClick: (row) => {
-                    UsersStore.setCurrentUser(row as IUserCreate)
-                    ModalsStore.deleteModal.openForm()
+                    UsersStore.setUserCurrent(row as IUserCreate)
+                    ModalsStore.deleteModal.formOpen()
                 }
             },
-
         ]
 
         return (
             <div className="App">
                 <div className="container">
                     <h1>Table Users</h1>
-                    <button className="btn col mx-1" onClick={() => ModalsStore.editModal.openForm()}>New User</button>
-                    <FilterUser
+                    <button className="btn col mx-1" onClick={() => ModalsStore.editModal.formOpen()}>New User</button>
+                    <UserFilter
                     />
                     <TableList
                         items={UsersStore.users}
@@ -84,12 +82,16 @@ const App = observer(() => {
                         actions={actions}
                     />
                 </div>
-                <ModalWindow isOpen={ModalsStore.editModal.open} onClose={() => ModalsStore.editModal.close()}>
+                <ModalWindow isOpen={ModalsStore.editModal.open} onClose={() => ModalsStore.editModal.formClose()}>
                     <FormInput/>
                 </ModalWindow>
-                <ModalWindow isOpen={ModalsStore.deleteModal.open} onClose={() => ModalsStore.deleteModal.close()}>
-                    <DeleteEvent/>
+                <ModalWindow isOpen={ModalsStore.deleteModal.open} onClose={() => ModalsStore.deleteModal.formClose()}>
+                    <ModalUserDelete/>
                 </ModalWindow>
+                <ToastContainer
+                    position="bottom-center"
+                    autoClose={5000}
+                />
             </div>
         );
     }

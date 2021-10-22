@@ -23,8 +23,7 @@ interface TableProps<T> {
     actions?: IActions<T>[]
 }
 
-UsersTable.fetchData()
-
+UsersTable.dataFetch()
 
 export default observer(function TableList<T extends { id?: number | null }>({items, columns, actions}: TableProps<T>) {
 

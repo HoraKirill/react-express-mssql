@@ -40,15 +40,15 @@ class FilterStore implements IFilterStore {
         makeAutoObservable(this)
     }
 
-    async getFilteredUsers() {
+    async getUsersFiltered() {
         const res = await axios.post(`http://localhost:3001/users`, this.requestFilter)
-        UsersStore.filterUsers(res.data as unknown as User[])
+        UsersStore.usersFilter(res.data as unknown as User[])
     }
 
      changingLine(e: string) {
         this.filterParameters.query = e
          this.requestFilter.query = e
-         this.getFilteredUsers()
+         this.getUsersFiltered()
     }
 
      changingType(e: string) {
@@ -59,13 +59,13 @@ class FilterStore implements IFilterStore {
      changingSuperuser(e: ESuperType) {
         this.filterParameters.superUser = e
          this.requestFilter.superUser = e
-         this.getFilteredUsers()
+         this.getUsersFiltered()
      }
 
     changingDate(e: EAgeType | undefined) {
         this.filterParameters.age = e
         this.requestFilter.age = e
-        this.getFilteredUsers()
+        this.getUsersFiltered()
     }
 
 }
